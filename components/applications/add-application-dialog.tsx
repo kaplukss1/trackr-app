@@ -90,7 +90,7 @@ export function AddApplicationDialog() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Tambah Aplikasi Baru</DialogTitle>
+                    <DialogTitle>Add New Application</DialogTitle>
                     <DialogDescription>
                         Catat lamaran pekerjaan baru ke dalam pipeline kamu.
                     </DialogDescription>
@@ -165,7 +165,7 @@ export function AddApplicationDialog() {
                             Cancel
                         </Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? "Menyimpan..." : "Simpan Aplikasi"}
+                            {isSubmitting ? "Menyimpan..." : "Save"}
                         </Button>
                     </div>
                 </form>

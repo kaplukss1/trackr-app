@@ -64,8 +64,8 @@ export function Sidebar() {
             AL
           </div>
           <div className="truncate">
-            <p className="text-xs font-medium text-foreground truncate">Alex Lewis</p>
-            <p className="text-[11px] text-muted-foreground truncate">alex@craftui.design</p>
+            <p className="text-xs font-medium text-foreground truncate">Andika Prayoga Siswono</p>
+            <p className="text-[11px] text-muted-foreground truncate">andikaprayoga118@gmail.com</p>
           </div>
         </div>
         <button

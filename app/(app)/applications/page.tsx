@@ -1,10 +1,11 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/layout/header";
 import { MoreVertical, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AddApplicationDialog } from "@/components/applications/add-application-dialog";
-
+import { connection } from "next/server";
 
 // Helper untuk warna badge status
 function getStatusStyle(status: string) {
@@ -20,12 +21,19 @@ function getStatusStyle(status: string) {
 
 // ─── KOMPONEN 1: PENGAMBIL DATA (SERVER) ───
 async function ApplicationsTable() {
+
+  await connection(); // Pastikan koneksi server aktif
+
   const supabase = await createClient();
-  
-  const { data: applications, error } = await supabase
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data, error } = await supabase
     .from("applications")
     .select("*")
+    .eq("user_id", user?.id)
     .order("applied_date", { ascending: false });
+
+  const applications = data || [];
 
   if (error) {
     return <div className="p-8 text-destructive bg-destructive/10 rounded-md">Error: {error.message}</div>;
@@ -53,9 +61,9 @@ async function ApplicationsTable() {
                     <div className="w-8 h-8 rounded-md bg-primary/10 text-primary font-bold flex items-center justify-center text-xs shrink-0">
                       {app.company_name.substring(0, 2).toUpperCase()}
                     </div>
-                    <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                    <Link href={`/applications/${app.id}`} className="font-semibold text-foreground group-hover:text-primary transition-colors hover:underline">
                       {app.company_name}
-                    </span>
+                    </Link>
                   </div>
                 </td>
                 <td className="py-4 px-5 font-medium">{app.position}</td>
@@ -69,7 +77,7 @@ async function ApplicationsTable() {
                   {new Date(app.applied_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </td>
                 <td className="py-4 px-5 text-muted-foreground tabular-nums">
-                  {app.interview_date 
+                  {app.interview_date
                     ? new Date(app.interview_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
                     : "—"}
                 </td>
@@ -80,7 +88,7 @@ async function ApplicationsTable() {
                 </td>
               </tr>
             ))}
-            
+
             {applications?.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-8 text-center text-muted-foreground">
@@ -99,20 +107,20 @@ async function ApplicationsTable() {
 export default function ApplicationsPage() {
   return (
     <>
-      <Header 
-        title="Applications" 
-        actionButton={<AddApplicationDialog />} 
+      <Header
+        title="Applications"
+        actionButton={<AddApplicationDialog />}
       />
-      
+
       <main className="flex-1 p-8 space-y-6 overflow-y-auto">
         {/* Filters Bar */}
         <section className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="relative w-full lg:w-80">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-            <input 
-              type="search" 
-              placeholder="Search by company or role..." 
-              className="w-full pl-9 pr-3 py-2 rounded-md text-sm bg-card border border-border focus:border-primary outline-none" 
+            <input
+              type="search"
+              placeholder="Search by company or role..."
+              className="w-full pl-9 pr-3 py-2 rounded-md text-sm bg-card border border-border focus:border-primary outline-none"
             />
           </div>
         </section>
@@ -120,7 +128,7 @@ export default function ApplicationsPage() {
         {/* Bungkus tabel dengan Suspense */}
         <Suspense fallback={
           <div className="p-8 text-center text-muted-foreground animate-pulse">
-            Memuat data dari Supabase...
+            Loading...
           </div>
         }>
           <ApplicationsTable />
