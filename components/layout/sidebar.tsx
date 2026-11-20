@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { LayoutDashboard, Kanban, Table2, Settings, Database, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Kanban, Table2, Settings, Database, Sun, Moon, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import { User } from "@supabase/supabase-js";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -13,9 +16,30 @@ const NAV = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-export function Sidebar() {
+export function Sidebar({ user }: { user: User | null }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { setTheme, resolvedTheme } = useTheme();
+  const supabase = createClient();
+
+  // Ambil nama dari metadata, atau potong dari email jika tidak ada
+  const fullName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
+  const email = user?.email || "user@email.com";
+  
+  // Buat inisial (misal: "Andika Prayoga" -> "AP")
+  const initials = fullName
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Berhasil logout");
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <aside className="w-64 shrink-0 border-r border-border bg-card min-h-screen flex flex-col justify-between">
@@ -57,28 +81,41 @@ export function Sidebar() {
         </nav>
       </div>
 
-      {/* User box */}
+      {/* User box & Actions */}
       <div className="p-4 m-4 rounded-md border border-border bg-muted/40 flex items-center justify-between">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold shrink-0">
-            AL
+            {initials}
           </div>
           <div className="truncate">
-            <p className="text-xs font-medium text-foreground truncate">Andika Prayoga Siswono</p>
-            <p className="text-[11px] text-muted-foreground truncate">andikaprayoga118@gmail.com</p>
+            <p className="text-xs font-medium text-foreground truncate" title={fullName}>
+              {fullName}
+            </p>
+            <p className="text-[11px] text-muted-foreground truncate" title={email}>
+              {email}
+            </p>
           </div>
         </div>
-        <button
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-          className="p-1.5 rounded-md text-muted-foreground hover:bg-card hover:text-foreground transition-colors shrink-0"
-          title="Toggle Theme"
-        >
-          {/* Ikon Matahari (Hanya muncul saat Dark Mode) */}
-          <Sun className="hidden dark:block w-4 h-4" />
+        
+        {/* Action Buttons */}
+        <div className="flex items-center gap-1 shrink-0 ml-2">
+          <button
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            className="p-1.5 rounded-md text-muted-foreground hover:bg-card hover:text-foreground transition-colors"
+            title="Toggle Theme"
+          >
+            <Sun className="hidden dark:block w-4 h-4" />
+            <Moon className="block dark:hidden w-4 h-4" />
+          </button>
           
-          {/* Ikon Bulan (Hanya muncul saat Light Mode) */}
-          <Moon className="block dark:hidden w-4 h-4" />
-        </button>
+          <button
+            onClick={handleLogout}
+            className="p-1.5 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+            title="Logout"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </aside>
   );
