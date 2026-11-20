@@ -110,7 +110,7 @@ function Column({ col, apps }: { col: any, apps: any[] }) {
         ))}
         {apps.length === 0 && (
           <div className="h-24 flex items-center justify-center border-2 border-dashed border-border rounded-md text-muted-foreground text-xs text-center px-4">
-            Geser kartu ke sini.
+            Swipe your card here.
           </div>
         )}
       </div>

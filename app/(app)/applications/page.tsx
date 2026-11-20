@@ -2,10 +2,11 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Header } from "@/components/layout/header";
-import { MoreVertical, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AddApplicationDialog } from "@/components/applications/add-application-dialog";
 import { connection } from "next/server";
+import { ApplicationRowActions } from "@/components/applications/application-row-actions";
 
 // Helper untuk warna badge status
 function getStatusStyle(status: string) {
@@ -49,7 +50,7 @@ async function ApplicationsTable() {
               <th className="py-3 px-5 text-xs font-semibold text-muted-foreground">Position</th>
               <th className="py-3 px-5 text-xs font-semibold text-muted-foreground">Status</th>
               <th className="py-3 px-5 text-xs font-semibold text-muted-foreground">Applied Date</th>
-              <th className="py-3 px-5 text-xs font-semibold text-muted-foreground">Interview Date</th>
+              {/* <th className="py-3 px-5 text-xs font-semibold text-muted-foreground">Interview Date</th> */}
               <th className="py-3 px-5 text-xs font-semibold text-muted-foreground text-right">Actions</th>
             </tr>
           </thead>
@@ -76,15 +77,14 @@ async function ApplicationsTable() {
                 <td className="py-4 px-5 text-muted-foreground tabular-nums">
                   {new Date(app.applied_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </td>
-                <td className="py-4 px-5 text-muted-foreground tabular-nums">
+                {/* interview date */}
+                {/* <td className="py-4 px-5 text-muted-foreground tabular-nums">
                   {app.interview_date
                     ? new Date(app.interview_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
                     : "—"}
-                </td>
+                </td> */}
                 <td className="py-4 px-5 text-right">
-                  <button className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
+                  <ApplicationRowActions app={app} />
                 </td>
               </tr>
             ))}
@@ -92,7 +92,7 @@ async function ApplicationsTable() {
             {applications?.length === 0 && (
               <tr>
                 <td colSpan={6} className="py-8 text-center text-muted-foreground">
-                  Belum ada data aplikasi.
+                  No application data yet.
                 </td>
               </tr>
             )}

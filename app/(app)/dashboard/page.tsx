@@ -149,7 +149,7 @@ async function DashboardContent() {
                 </li>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground py-4 text-center">Tidak ada antrean follow-up.</p>
+              <p className="text-sm text-muted-foreground py-4 text-center">There are no pending follow-ups.</p>
             )}
           </ul>
         </div>
@@ -193,7 +193,7 @@ async function DashboardContent() {
                 </li>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground py-4 text-center">Tidak ada jadwal interview terdekat.</p>
+              <p className="text-sm text-muted-foreground py-4 text-center">There are no upcoming interview schedules.</p>
             )}
           </ul>
         </div>
@@ -208,7 +208,7 @@ export default function DashboardPage() {
     <>
       <Header title="Dashboard" badge="Active Hunt" searchPlaceholder="Search roles or companies..." />
       <main className="flex-1 p-8 overflow-y-auto bg-background">
-        <Suspense fallback={<div className="p-8 text-muted-foreground animate-pulse">Memuat dashboard...</div>}>
+        <Suspense fallback={<div className="p-8 text-muted-foreground animate-pulse">Loading dashboard...</div>}>
           <DashboardContent />
         </Suspense>
       </main>

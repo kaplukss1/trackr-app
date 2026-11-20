@@ -9,6 +9,7 @@ import { Suspense } from "react";
 import { EditApplicationDialog } from "@/components/applications/edit-application-dialog";
 import { DeleteApplicationButton } from "@/components/applications/delete-application-button";
 import { connection } from "next/server";
+import { AddTimelineDialog } from "@/components/applications/add-timeline-dialog";
 
 function getStatusStyle(status: string) {
     switch (status) {
@@ -65,8 +66,8 @@ async function ApplicationDetailContent({ params }: { params: Promise<{ id: stri
                     </div>
 
                     {/* // btn edit dan delete */}
-                    <EditApplicationDialog app={app} />
-                    <DeleteApplicationButton id={app.id} />
+                    <EditApplicationDialog app={app} showTrigger={true} />
+                    <DeleteApplicationButton id={app.id} showTrigger={true} />
                 </section>
 
                 <div>
@@ -142,7 +143,10 @@ async function ApplicationDetailContent({ params }: { params: Promise<{ id: stri
                         <div className="p-6 rounded-md bg-card border border-border">
                             <div className="flex items-center justify-between border-b border-border pb-3 mb-6">
                                 <h2 className="text-lg font-semibold">Stage Timeline</h2>
-                                <span className="text-xs font-medium text-status-interview">Active Round</span>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xs font-medium text-status-interview">Active Round</span>
+                                    <AddTimelineDialog appId={app.id} />
+                                </div>
                             </div>
 
                             {timeline.length > 0 ? (

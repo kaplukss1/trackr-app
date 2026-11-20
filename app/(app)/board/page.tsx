@@ -31,7 +31,7 @@ export default function BoardPage() {
     <>
       <Header title="Board" badge="Pipeline View" />
       <main className="flex-1 p-6 overflow-x-auto bg-background">
-        <Suspense fallback={<div className="p-8 text-muted-foreground animate-pulse">Memuat Board...</div>}>
+        <Suspense fallback={<div className="p-8 text-muted-foreground animate-pulse">Loading Board...</div>}>
           <BoardData />
         </Suspense>
       </main>

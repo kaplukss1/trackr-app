@@ -19,15 +19,29 @@ const formSchema = z.object({
   position: z.string().min(1, "Required"),
   status: z.enum(["Applied", "Screening", "Interview", "Offer", "Rejected"]),
   applied_date: z.string(),
+  interview_date: z.string().optional().or(z.literal("")),
   job_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   location: z.string().optional(),
   salary: z.string().optional(),
   notes: z.string().optional(),
 });
 
-export function EditApplicationDialog({ app }: { app: any }) {
-  const [open, setOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function EditApplicationDialog({
+  app,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
+  showTrigger = false // Prop baru: jika true, tampilkan tombol trigger bawaan
+}: {
+  app: any;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
+}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = setControlledOpen || setInternalOpen;
+
+  const [isSubmitting, setIsSubmitting] = useState(false); // <-- Ini yang tadi hilang
 
   const { register, handleSubmit, formState: { errors }, reset, control } = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -36,6 +50,7 @@ export function EditApplicationDialog({ app }: { app: any }) {
       position: "",
       status: "Applied",
       applied_date: "",
+      interview_date: "",
       job_url: "",
       location: "",
       salary: "",
@@ -43,7 +58,6 @@ export function EditApplicationDialog({ app }: { app: any }) {
     },
   });
 
-  // Isi form dengan data aplikasi saat modal dibuka
   useEffect(() => {
     if (open && app) {
       reset({
@@ -51,6 +65,7 @@ export function EditApplicationDialog({ app }: { app: any }) {
         position: app.position,
         status: app.status,
         applied_date: app.applied_date,
+        interview_date: app.interview_date ? new Date(new Date(app.interview_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "", // <-- Format tanggal untuk input
         job_url: app.job_url || "",
         location: app.location || "",
         salary: app.salary || "",
@@ -74,11 +89,13 @@ export function EditApplicationDialog({ app }: { app: any }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <Edit className="w-4 h-4 mr-2" /> Edit
-        </Button>
-      </DialogTrigger>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="outline">
+            <Edit className="w-4 h-4 mr-2" /> Edit
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Edit Aplikasi</DialogTitle>
@@ -106,7 +123,9 @@ export function EditApplicationDialog({ app }: { app: any }) {
                 name="status"
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-full h-11">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Applied">Applied</SelectItem>
                       <SelectItem value="Screening">Screening</SelectItem>
@@ -118,9 +137,15 @@ export function EditApplicationDialog({ app }: { app: any }) {
                 )}
               />
             </div>
+
             <div className="space-y-2">
               <Label>Applied Date *</Label>
               <Input type="date" {...register("applied_date")} />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Next Interview Date (Optional)</Label>
+              <Input type="datetime-local" {...register("interview_date")} />
             </div>
           </div>
 
@@ -149,7 +174,7 @@ export function EditApplicationDialog({ app }: { app: any }) {
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
+              {isSubmitting ? "Save..." : "Save changes"}
             </Button>
           </div>
         </form>
